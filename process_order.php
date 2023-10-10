@@ -24,14 +24,24 @@ if ($conn->connect_error) {
 }
 
 if (isset($_POST['submit'])) {
-    $user_id = $_SESSION['id']; // แทนที่ด้วย user_id จริงของผู้ใช้ที่กำลังสั่งซื้อ
+    $user_id = $_SESSION['id']; 
   $payment_method = $_POST['payment_method'];
 
-  if (isset($_FILES['slip'])) {
-    $slip = base64_encode(file_get_contents($_FILES['slip']['tmp_name']));
-  } else {
+  if (isset($_FILES['slip']) && $_FILES['slip']['error'] === UPLOAD_ERR_OK) {
+    $temp_file = $_FILES['slip']['tmp_name'];
+    $destination_path = 'slip/' . $_FILES['slip']['name']; // Specify the destination directory and filename
+
+    if (move_uploaded_file($temp_file, $destination_path)) {
+        // File was successfully saved to your device
+        $slip = base64_encode(file_get_contents($destination_path));
+    } else {
+        // Error occurred while moving the file
+        echo "Failed to move the uploaded file.";
+        $slip = NULL;
+    }
+} else {
     $slip = NULL;
-  }
+}
 
   $transfer_amount = isset($_POST['transferAmount']) ? $_POST['transferAmount'] : NULL;
   $order_date = date("Y-m-d H:i:s");
@@ -40,7 +50,7 @@ if (isset($_POST['submit'])) {
   $sql = "INSERT INTO orders (user_id, payment_method, transfer_slip, transfer_amount, order_date, order_status) VALUES (?, ?, ?, ?, ?, ?)";
 
   if ($stmt = $conn->prepare($sql)) {
-    $stmt->bind_param("isssdss", $user_id, $payment_method, $slip, $transfer_amount, $order_date, $order_status);
+    $stmt->bind_param("isssss", $user_id, $payment_method, $slip, $transfer_amount, $order_date, $order_status);
     $stmt->execute();
 
     if ($stmt->affected_rows > 0) {

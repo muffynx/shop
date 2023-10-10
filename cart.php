@@ -1,8 +1,6 @@
 <?php
 session_start();
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 // Connect to the database
 $servername = "localhost";
@@ -26,11 +24,9 @@ if (isset($_GET['id'])) {
     }
 
     // Check if the product is already in the cart
-    if (isset($_SESSION['cart'][$product_id])) {
-        $_SESSION['cart'][$product_id] += 1; // Increment the quantity
-    } else {
+
         $_SESSION['cart'][$product_id] = 1; // Add the product with a quantity of 1
-    }
+    
 }
 
 if (isset($_SESSION['id'])) {
@@ -91,7 +87,7 @@ function add_order_to_database($conn, $user_id, $cart) {
 
 
 // ตรวจสอบว่ามีการกดปุ่มยืนยันคำสั่งซื้อหรือไม่
-if (isset($_POST['submitzz'])) {
+if (isset($_POST['submit_order'])) {
       // เรียกใช้ฟังก์ชัน add_order_to_database ด้วยค่า $conn, $user_id และ $cart
     add_order_to_database($conn, $user_id, $_SESSION['cart']);
     echo "<script>alert('คำสั่งซื้อของคุณถูกยืนยันแล้ว'); location.href='?action=empty';</script>";
@@ -223,14 +219,14 @@ $cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : array();
         <option value="bankTransfer">โอนผ่านบัญชีธนาคาร</option>
     </select>
         <form method="post">
-    <button type="submit" name="submitzz" style="text-decoration: none; color: #000; padding: 7px 25px; border: 1px solid #000;">Confirm Order</button>
+    <button type="submit" name="submit_order" style="text-decoration: none; color: #000; padding: 7px 25px; border: 1px solid #000;">Confirm Order</button>
 </form>    </div>
 </div>
 
 
 
         
-<!---------- การำระเงิน ---------->
+<!----------  ---------->
 
 
 
@@ -273,7 +269,7 @@ $cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : array();
         <label for="payment_method" class="form-label">ยืนยันช่องทางการชำระ:</label>
         <input type="text" id="payment_method" name="payment_method" class="form-control" required>
     </div>
-<button type="submit" name="submitzz" class="btn btn-primary">ยืนยัน</button>
+<button type="submit" name="submit" class="btn btn-primary">ยืนยัน</button>
 </form>
 </div>
 </div>
